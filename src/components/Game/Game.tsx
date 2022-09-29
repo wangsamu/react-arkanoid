@@ -1,8 +1,10 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import GameStyled from "./GameStyled";
 import Player from "../../classes/Player/Player";
+import useFrame from "../../hooks/useFrame";
 
 const Game = (): JSX.Element => {
+  const frameTime = useFrame();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const [player, setPlayer] = useState(new Player());
@@ -16,6 +18,27 @@ const Game = (): JSX.Element => {
     ctxRef.current.fillRect(0, 0, canvas!.width, canvas!.height);
     ctxRef.current.stroke();
   }, []);
+
+  const renderPlayer = useCallback(() => {
+    clearScreen();
+    ctxRef.current!.fillStyle = player.color;
+    ctxRef.current!.fillRect(
+      player.startPosX,
+      player.startPosY,
+      player.width,
+      player.height
+    );
+    ctxRef.current!.stroke();
+  }, [player]);
+
+  const gameLoop = useCallback(() => {
+    clearScreen();
+    renderPlayer();
+  }, [renderPlayer]);
+
+  useEffect(() => {
+    gameLoop();
+  }, [frameTime, gameLoop]);
 
   const clearScreen = () => {
     ctxRef.current!.fillStyle = "black";
@@ -33,33 +56,14 @@ const Game = (): JSX.Element => {
     );
   };
 
-  const renderPlayer = useCallback(() => {
-    clearScreen();
-    ctxRef.current!.fillStyle = player.color;
-    ctxRef.current!.fillRect(
-      player.startPosX,
-      player.startPosY,
-      player.width,
-      player.height
-    );
-    ctxRef.current!.stroke();
-  }, [player]);
-
-  useEffect(() => {
-    renderPlayer();
-  }, [player, renderPlayer]);
-
   const movePlayer = (direction: number) => {
     player.startPosX += direction;
     setPlayer(player);
-    renderPlayer();
   };
-  console.log(player);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLCanvasElement>) => {
     if (event.key === "d") movePlayer(player.speed);
     if (event.key === "a") movePlayer(player.speed * -1);
-    console.log(player.startPosX);
   };
 
   return (

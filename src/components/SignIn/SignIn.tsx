@@ -1,5 +1,5 @@
 import React from 'react'
-import { signInwithGooglePopUp } from '../../utils/firebase/firebase.utils'
+import { signInwithGooglePopUp } from '../../utils/firebase/firebaseUtils'
 
 function SignIn() {
   return (

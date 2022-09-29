@@ -4,6 +4,7 @@ class Player {
   color;
   startPosX = 100;
   startPosY = 400;
+  speed = 2;
   constructor(
     width: number = 40,
     height: number = 10,

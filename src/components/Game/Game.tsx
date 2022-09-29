@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 import GameStyled from "./GameStyled";
+import Player from "../../classes/Player/Player";
 
 const Game = (): JSX.Element => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const player = new Player();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -14,6 +16,17 @@ const Game = (): JSX.Element => {
     ctxRef.current.fillRect(0, 0, canvas!.width, canvas!.height);
     ctxRef.current.stroke();
   }, []);
+
+  useEffect(() => {
+    ctxRef.current!.fillStyle = player.color;
+    ctxRef.current!.fillRect(
+      player.startPosX,
+      player.startPosY,
+      player.width,
+      player.height
+    );
+    ctxRef.current!.stroke();
+  }, [player]);
 
   return (
     <GameStyled className="game">

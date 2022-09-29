@@ -13,8 +13,7 @@ const GameStyled = styled.section`
     }
     &__canvas {
       margin: auto auto;
-      width: 50%;
-      height: 75%;
+
       border: 2px solid white;
       image-rendering: pixelated;
     }

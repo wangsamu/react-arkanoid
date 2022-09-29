@@ -1,7 +1,12 @@
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
+
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import {useAuthState} from 'react-firebase-hooks/auth';
+import {useCollectionData} from 'react-firebase-hooks/firestore';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,3 +20,13 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+const auth = firebase.auth()
+const firestore = firebase.firestore()
+
+// const [user] = useAuthState(auth)
+
+const signInWithGoogle = () => {
+    const provider =  new firebase.auth.GoogleAuthProvider()
+    auth.signInWithPopup(provider)
+}

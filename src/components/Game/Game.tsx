@@ -1,8 +1,8 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import GameStyled from "./GameStyled";
-import Player from "../../classes/Player/Player";
+import Player from "../../classes/Player";
 import useFrame from "../../hooks/useFrame";
-import Ball from "../../classes/Player/Ball";
+import Ball from "../../classes/Ball";
 
 const Game = (): JSX.Element => {
   const frameTime = useFrame();

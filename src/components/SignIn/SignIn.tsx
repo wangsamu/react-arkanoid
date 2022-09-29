@@ -1,9 +1,9 @@
 import React from 'react'
-import { signInWithGoogle } from '../../utils/firebase/firebase.utils'
+import { signInwithGooglePopUp } from '../../utils/firebase/firebase.utils'
 
 function SignIn() {
   return (
-    <button onClick={signInWithGoogle}>Sign in with Google</button>
+    <button onClick={signInwithGooglePopUp}>Sign in with Google</button>
   )
 }
 

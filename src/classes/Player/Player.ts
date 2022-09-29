@@ -2,9 +2,9 @@ class Player {
   width;
   height;
   color;
-  startPosX = 100;
-  startPosY = 400;
-  speed = 2;
+  posX = 140;
+  posY = 450;
+  speed = 4;
   constructor(
     width: number = 40,
     height: number = 10,

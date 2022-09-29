@@ -2,12 +2,14 @@ import { useEffect, useRef, useCallback, useState } from "react";
 import GameStyled from "./GameStyled";
 import Player from "../../classes/Player/Player";
 import useFrame from "../../hooks/useFrame";
+import Ball from "../../classes/Player/Ball";
 
 const Game = (): JSX.Element => {
   const frameTime = useFrame();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const [player, setPlayer] = useState(new Player());
+  const [ball, setBall] = useState(new Ball());
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -17,30 +19,29 @@ const Game = (): JSX.Element => {
     ctxRef.current.fillStyle = "black";
     ctxRef.current.fillRect(0, 0, canvas!.width, canvas!.height);
     ctxRef.current.stroke();
+    canvas!.focus();
   }, []);
 
-  const renderPlayer = useCallback(() => {
-    clearScreen();
+  const render = useCallback(() => {
     ctxRef.current!.fillStyle = player.color;
     ctxRef.current!.fillRect(
-      player.startPosX,
-      player.startPosY,
+      player.posX,
+      player.posY,
       player.width,
       player.height
     );
     ctxRef.current!.stroke();
-  }, [player]);
+    ctxRef.current!.fillStyle = ball.color;
+    ctxRef.current!.fillRect(ball.posX, ball.posY, ball.width, ball.height);
+    ctxRef.current!.stroke();
+  }, [player, ball]);
 
-  const gameLoop = useCallback(() => {
-    clearScreen();
-    renderPlayer();
-  }, [renderPlayer]);
+  const moveBall = useCallback(() => {
+    ball.posY += 1;
+    setBall(ball);
+  }, [ball]);
 
-  useEffect(() => {
-    gameLoop();
-  }, [frameTime, gameLoop]);
-
-  const clearScreen = () => {
+  const clearScreen = useCallback(() => {
     ctxRef.current!.fillStyle = "black";
     ctxRef.current!.clearRect(
       0,
@@ -54,10 +55,20 @@ const Game = (): JSX.Element => {
       canvasRef.current!.width,
       canvasRef.current!.height
     );
-  };
+  }, []);
+
+  const gameLoop = useCallback(() => {
+    clearScreen();
+    moveBall();
+    render();
+  }, [clearScreen, moveBall, render]);
+
+  useEffect(() => {
+    gameLoop();
+  }, [frameTime, gameLoop]);
 
   const movePlayer = (direction: number) => {
-    player.startPosX += direction;
+    player.posX += direction;
     setPlayer(player);
   };
 

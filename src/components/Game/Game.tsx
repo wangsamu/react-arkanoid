@@ -1,11 +1,16 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import GameStyled from "./GameStyled";
-import Player from "../../classes/Player/Player";
+import Player from "../../classes/Player";
+import useFrame from "../../hooks/useFrame";
+import Ball from "../../classes/Ball";
 
 const Game = (): JSX.Element => {
+  const [movement, setMovement] = useState<number>();
+  const frameTime = useFrame();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const [player, setPlayer] = useState(new Player());
+  const [ball, setBall] = useState(new Ball());
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -15,9 +20,30 @@ const Game = (): JSX.Element => {
     ctxRef.current.fillStyle = "black";
     ctxRef.current.fillRect(0, 0, canvas!.width, canvas!.height);
     ctxRef.current.stroke();
+    canvas!.focus();
   }, []);
 
-  const clearScreen = () => {
+  const render = useCallback(() => {
+    ctxRef.current!.fillStyle = player.color;
+    ctxRef.current!.fillRect(
+      player.posX,
+      player.posY,
+      player.width,
+      player.height
+    );
+    ctxRef.current!.stroke();
+    ctxRef.current!.fillStyle = ball.color;
+    ctxRef.current!.fillRect(ball.posX, ball.posY, ball.width, ball.height);
+    ctxRef.current!.stroke();
+  }, [player, ball]);
+
+  const moveBall = useCallback(() => {
+    ball.posY += ball.directionY * ball.speed;
+    ball.posX += ball.directionX * ball.speed;
+    setBall(ball);
+  }, [ball]);
+
+  const clearScreen = useCallback(() => {
     ctxRef.current!.fillStyle = "black";
     ctxRef.current!.clearRect(
       0,
@@ -31,35 +57,105 @@ const Game = (): JSX.Element => {
       canvasRef.current!.width,
       canvasRef.current!.height
     );
-  };
+  }, []);
 
-  const renderPlayer = useCallback(() => {
+  const changeBallDirectionY = useCallback(() => {
+    ball.directionY = ball.directionY * -1;
+
+    setBall(ball);
+  }, [ball]);
+
+  const changeBallDirectionX = useCallback(() => {
+    ball.directionX = ball.directionX * -1;
+    setBall(ball);
+  }, [ball]);
+
+  const checkForPlayerCollision = useCallback(() => {
+    if (
+      ball.posY + ball.height >= player.posY &&
+      ball.posY <= player.posY + player.height
+    ) {
+      if (
+        ball.posX <= player.posX + player.width &&
+        ball.posX + ball.width >= player.posX
+      ) {
+        changeBallDirectionY();
+        if (ball.posX + ball.width <= player.posX + 5) {
+          changeBallDirectionX();
+          return;
+        }
+        if (ball.posX >= player.posX + player.width - 5) {
+          changeBallDirectionX();
+          return;
+        }
+        return;
+      }
+      return;
+    }
+  }, [ball, changeBallDirectionY, changeBallDirectionX, player]);
+
+  const checkForWallCollision = useCallback(() => {
+    if (ball.posX + ball.width >= canvasRef.current!.width) {
+      changeBallDirectionX();
+      return;
+    }
+    if (ball.posX <= 0) {
+      changeBallDirectionX();
+      return;
+    }
+    if (ball.posY <= 0) {
+      changeBallDirectionY();
+      return;
+    }
+  }, [ball, changeBallDirectionX, changeBallDirectionY]);
+
+  const checkForCollision = useCallback(() => {
+    checkForPlayerCollision();
+    checkForWallCollision();
+  }, [checkForPlayerCollision, checkForWallCollision]);
+
+  const movePlayer = useCallback(() => {
+    if (movement === -1) {
+      player.posX -= player.speed;
+      setPlayer(player);
+      return;
+    }
+    if (movement === +1) {
+      player.posX += player.speed;
+      setPlayer(player);
+      return;
+    }
+  }, [player, movement]);
+
+  const gameLoop = useCallback(() => {
+    movePlayer();
     clearScreen();
-    ctxRef.current!.fillStyle = player.color;
-    ctxRef.current!.fillRect(
-      player.startPosX,
-      player.startPosY,
-      player.width,
-      player.height
-    );
-    ctxRef.current!.stroke();
-  }, [player]);
+    checkForCollision();
+    moveBall();
+
+    render();
+  }, [clearScreen, moveBall, render, checkForCollision, movePlayer]);
 
   useEffect(() => {
-    renderPlayer();
-  }, [player, renderPlayer]);
-
-  const movePlayer = (direction: number) => {
-    player.startPosX += direction;
-    setPlayer(player);
-    renderPlayer();
-  };
-  console.log(player);
+    gameLoop();
+  }, [frameTime, gameLoop]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLCanvasElement>) => {
-    if (event.key === "d") movePlayer(player.speed);
-    if (event.key === "a") movePlayer(player.speed * -1);
-    console.log(player.startPosX);
+    if (event.key === "d") {
+      setMovement(+1);
+      return;
+    }
+    if (event.key === "a") {
+      setMovement(-1);
+      return;
+    }
+  };
+
+  const handleKeyUp = (event: React.KeyboardEvent<HTMLCanvasElement>) => {
+    if (event.key === "d" || event.key === "a") {
+      setMovement(0);
+      return;
+    }
   };
 
   return (
@@ -69,6 +165,7 @@ const Game = (): JSX.Element => {
         tabIndex={0}
         className={"game__canvas"}
         onKeyDown={(event) => handleKeyDown(event)}
+        onKeyUp={(event) => handleKeyUp(event)}
         ref={canvasRef}
         width={320}
         height={480}

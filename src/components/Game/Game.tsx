@@ -64,18 +64,22 @@ const Game = (): JSX.Element => {
   }, []);
 
   const changeBallDirectionY = useCallback(
-    (playerHit: boolean) => {
-      if (playerHit) ball.posY = player.posY - ball.height;
+    (transformLocation: number) => {
+      ball.posY = transformLocation;
       ball.directionY = ball.directionY * -1;
       setBall(ball);
     },
     [ball, player]
   );
 
-  const changeBallDirectionX = useCallback(() => {
-    ball.directionX = ball.directionX * -1;
-    setBall(ball);
-  }, [ball]);
+  const changeBallDirectionX = useCallback(
+    (transformLocation: number) => {
+      ball.posX = transformLocation;
+      ball.directionX = ball.directionX * -1;
+      setBall(ball);
+    },
+    [ball]
+  );
 
   const checkForPlayerCollision = useCallback(() => {
     if (
@@ -86,7 +90,7 @@ const Game = (): JSX.Element => {
         ball.posX <= player.posX + player.spriteWidth &&
         ball.posX + ball.width >= player.posX
       ) {
-        changeBallDirectionY(true);
+        changeBallDirectionY(player.posY - ball.height);
         return;
       }
       return;
@@ -95,15 +99,15 @@ const Game = (): JSX.Element => {
 
   const checkForWallCollision = useCallback(() => {
     if (ball.posX + ball.width >= canvasRef.current!.width) {
-      changeBallDirectionX();
+      changeBallDirectionX(canvasRef.current!.width - ball.width);
       return;
     }
     if (ball.posX <= 0) {
-      changeBallDirectionX();
+      changeBallDirectionX(0);
       return;
     }
     if (ball.posY <= 0) {
-      changeBallDirectionY(false);
+      changeBallDirectionY(0);
       return;
     }
   }, [ball, changeBallDirectionX, changeBallDirectionY]);

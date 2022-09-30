@@ -2,12 +2,12 @@ class Ball {
   width;
   height;
   color;
-  posX = 158;
-  posY = 100;
-  speed = 5;
+  posX = 80;
+  posY = 3;
+  speed = 3;
   directionY = 1;
   directionX = 1;
-  constructor(width: number = 5, height: number = 5, color: string = "#fff") {
+  constructor(width: number = 3, height: number = 3, color: string = "#0ff") {
     this.width = width;
     this.height = height;
     this.color = color;

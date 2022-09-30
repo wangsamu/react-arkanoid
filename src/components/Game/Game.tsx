@@ -24,12 +24,16 @@ const Game = (): JSX.Element => {
   }, []);
 
   const render = useCallback(() => {
-    ctxRef.current!.fillStyle = player.color;
-    ctxRef.current!.fillRect(
+    ctxRef.current!.drawImage(
+      player.sprite,
+      player.spritePosX,
+      player.spritePosY,
+      player.spriteWidth,
+      player.spriteHeight,
       player.posX,
       player.posY,
-      player.width,
-      player.height
+      player.spriteWidth,
+      player.spriteHeight
     );
     ctxRef.current!.stroke();
     ctxRef.current!.fillStyle = ball.color;
@@ -59,11 +63,14 @@ const Game = (): JSX.Element => {
     );
   }, []);
 
-  const changeBallDirectionY = useCallback(() => {
-    ball.directionY = ball.directionY * -1;
-
-    setBall(ball);
-  }, [ball]);
+  const changeBallDirectionY = useCallback(
+    (playerHit: boolean) => {
+      if (playerHit) ball.posY = player.posY - ball.height;
+      ball.directionY = ball.directionY * -1;
+      setBall(ball);
+    },
+    [ball, player]
+  );
 
   const changeBallDirectionX = useCallback(() => {
     ball.directionX = ball.directionX * -1;
@@ -73,26 +80,18 @@ const Game = (): JSX.Element => {
   const checkForPlayerCollision = useCallback(() => {
     if (
       ball.posY + ball.height >= player.posY &&
-      ball.posY <= player.posY + player.height
+      ball.posY <= player.posY + player.spriteHeight
     ) {
       if (
-        ball.posX <= player.posX + player.width &&
+        ball.posX <= player.posX + player.spriteWidth &&
         ball.posX + ball.width >= player.posX
       ) {
-        changeBallDirectionY();
-        if (ball.posX + ball.width <= player.posX + 5) {
-          changeBallDirectionX();
-          return;
-        }
-        if (ball.posX >= player.posX + player.width - 5) {
-          changeBallDirectionX();
-          return;
-        }
+        changeBallDirectionY(true);
         return;
       }
       return;
     }
-  }, [ball, changeBallDirectionY, changeBallDirectionX, player]);
+  }, [ball, changeBallDirectionY, player]);
 
   const checkForWallCollision = useCallback(() => {
     if (ball.posX + ball.width >= canvasRef.current!.width) {
@@ -104,7 +103,7 @@ const Game = (): JSX.Element => {
       return;
     }
     if (ball.posY <= 0) {
-      changeBallDirectionY();
+      changeBallDirectionY(false);
       return;
     }
   }, [ball, changeBallDirectionX, changeBallDirectionY]);
@@ -116,11 +115,13 @@ const Game = (): JSX.Element => {
 
   const movePlayer = useCallback(() => {
     if (movement === -1) {
+      player.rightMoveAnimation();
       player.posX -= player.speed;
       setPlayer(player);
       return;
     }
     if (movement === +1) {
+      player.leftMoveAnimation();
       player.posX += player.speed;
       setPlayer(player);
       return;
@@ -142,10 +143,12 @@ const Game = (): JSX.Element => {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLCanvasElement>) => {
     if (event.key === "d") {
+      player.rightMoveAnimation();
       setMovement(+1);
       return;
     }
     if (event.key === "a") {
+      player.leftMoveAnimation();
       setMovement(-1);
       return;
     }
@@ -161,6 +164,7 @@ const Game = (): JSX.Element => {
   return (
     <GameStyled className="game">
       <h2 className="game__title">GAME</h2>
+
       <canvas
         tabIndex={0}
         className={"game__canvas"}
@@ -168,7 +172,7 @@ const Game = (): JSX.Element => {
         onKeyUp={(event) => handleKeyUp(event)}
         ref={canvasRef}
         width={320}
-        height={480}
+        height={400}
       />
     </GameStyled>
   );

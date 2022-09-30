@@ -1,12 +1,14 @@
 import { useEffect } from "react";
-import { useAppDispatch } from "../../app/hooks";
-import { setCurrentUser } from "../../app/users/usersActions";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { setCurrentUser } from "../../app/slices/UsersSlice";
+import { RootState } from "../../app/store";
 import { createUserDocumentFromAuth, onAuthStateChangedListener } from "../../utils/firebase/firebaseUtils";
 import Game from "../Game/Game";
 import SignIn from "../SignIn/SignIn";
 import AppStyled from "./AppStyled";
 
 function App() {
+  // const currentUser = useAppSelector((state:RootState)=>state.users.currentUser)
   const dispatch = useAppDispatch();
 
 

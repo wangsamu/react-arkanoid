@@ -61,7 +61,7 @@ const createUserDocumentFromAuth = async (
         createdAt,
         // ...additionalInfo,
       });
-      console.log(displayName, email);
+      console.log(`user created suceessfully! ${displayName}`);
     } catch (error: any) {
       console.log("error creating user", error.message);
     }

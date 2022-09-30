@@ -1,8 +1,9 @@
-import { USERS_ACTION_TYPES } from "./usersActionTypes";
+import { AnyAction } from "@reduxjs/toolkit";
+import { USERS_ACTION_TYPES } from "./usersTypes";
 
 const INITIAL_STATE = { currentUser: null };
 
-const useresReducer = (state = INITIAL_STATE, action: any) => {
+const usersReducer = (state = INITIAL_STATE, action: AnyAction) => {
   const { type, payload } = action;
 
   switch (type) {
@@ -16,4 +17,4 @@ const useresReducer = (state = INITIAL_STATE, action: any) => {
   }
 };
 
-export default useresReducer;
+export default usersReducer;

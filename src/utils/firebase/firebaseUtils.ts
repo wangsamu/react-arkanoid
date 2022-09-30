@@ -38,8 +38,8 @@ const signInwithGooglePopUp = () => {
 
 //for new sign-ups, creating a copy of the user in firestore
 const createUserDocumentFromAuth = async (
-  userAuth: any,
-  additionalInfo: any
+  userAuth: any
+  // additionalInfo: any
 ) => {
   if (!userAuth) return;
 
@@ -59,7 +59,7 @@ const createUserDocumentFromAuth = async (
         displayName,
         email,
         createdAt,
-        ...additionalInfo,
+        // ...additionalInfo,
       });
       console.log(displayName, email);
     } catch (error: any) {

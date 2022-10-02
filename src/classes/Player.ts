@@ -23,12 +23,12 @@ class Player {
   ];
   currentSprite = 0;
   posX = 80;
-  posY = 374;
+  posY = 290;
   speed = 2;
   sprite = this.getImage();
   constructor() {
     this.width = this.sprite.width;
-    this.height = this.sprite.height;
+    this.height = 4;
   }
   getImage() {
     const img = new Image();
@@ -41,11 +41,9 @@ class Player {
     } else {
       this.currentSprite = 11;
     }
-    console.log(this.currentSprite, this.spritePositions[this.currentSprite]);
+
     this.spritePosX = this.spritePositions[this.currentSprite][0];
     this.spritePosY = this.spritePositions[this.currentSprite][1];
-
-    console.log(this.spritePosX, this.spritePosY);
   }
 
   rightMoveAnimation() {
@@ -56,8 +54,6 @@ class Player {
     }
     this.spritePosX = this.spritePositions[this.currentSprite][0];
     this.spritePosY = this.spritePositions[this.currentSprite][1];
-
-    console.log(this.spritePosX, this.spritePosY);
   }
 }
 

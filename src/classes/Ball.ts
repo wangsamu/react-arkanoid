@@ -2,15 +2,36 @@ class Ball {
   width;
   height;
   color;
-  posX = 80;
-  posY = 3;
-  speed = 3;
+  posX = 50;
+  posY = 200;
+  gridPosX = 0;
+  gridPosY = 0;
+  speed = 1.5;
   directionY = 1;
   directionX = 1;
+  topColliderX: number = 0;
+  topColliderY: number = 0;
+  botColliderX: number = 0;
+  botColliderY: number = 0;
+  leftColliderX: number = 0;
+  leftColliderY: number = 0;
+  rightColliderX: number = 0;
+  rightColliderY: number = 0;
   constructor(width: number = 3, height: number = 3, color: string = "#0ff") {
     this.width = width;
     this.height = height;
     this.color = color;
+  }
+
+  getColliderPos(ballX: number, ballY: number) {
+    this.topColliderX = ballX + 2;
+    this.topColliderY = ballY;
+    this.botColliderX = ballX + 2;
+    this.botColliderY = ballY + this.height;
+    this.leftColliderX = ballX - 1;
+    this.leftColliderY = ballY + 2;
+    this.rightColliderX = ballX + this.width + 1;
+    this.rightColliderY = ballY + 2;
   }
 }
 

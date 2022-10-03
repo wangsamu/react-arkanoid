@@ -26,6 +26,7 @@ class Player {
   posY = 290;
   speed = 2;
   sprite = this.getImage();
+
   constructor() {
     this.width = this.sprite.width;
     this.height = 4;
@@ -35,25 +36,38 @@ class Player {
     img.src = image;
     return img;
   }
-  leftMoveAnimation() {
-    if (this.currentSprite > 0) {
-      this.currentSprite -= 1;
-    } else {
-      this.currentSprite = 11;
+  walkAnimation(direction: number) {
+    if (direction === -1) {
+      if (this.currentSprite > 0) {
+        this.currentSprite += direction;
+      } else {
+        this.currentSprite = 11;
+      }
     }
-
+    if (direction === +1) {
+      if (this.currentSprite < 11) {
+        this.currentSprite += direction;
+      } else {
+        this.currentSprite = 0;
+      }
+    }
     this.spritePosX = this.spritePositions[this.currentSprite][0];
     this.spritePosY = this.spritePositions[this.currentSprite][1];
   }
 
-  rightMoveAnimation() {
-    if (this.currentSprite < 11) {
-      this.currentSprite += 1;
-    } else {
-      this.currentSprite = 0;
-    }
-    this.spritePosX = this.spritePositions[this.currentSprite][0];
-    this.spritePosY = this.spritePositions[this.currentSprite][1];
+  drawPlayer(context: CanvasRenderingContext2D) {
+    context.drawImage(
+      this.sprite,
+      this.spritePosX,
+      this.spritePosY,
+      this.spriteWidth,
+      this.spriteHeight,
+      this.posX,
+      this.posY,
+      this.spriteWidth,
+      this.spriteHeight
+    );
+    context!.stroke();
   }
 }
 

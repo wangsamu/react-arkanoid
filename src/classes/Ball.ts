@@ -33,6 +33,12 @@ class Ball {
     this.rightColliderX = ballX + this.width + 1;
     this.rightColliderY = ballY + 2;
   }
+
+  drawBall(context: CanvasRenderingContext2D) {
+    context.fillStyle = this.color;
+    context.fillRect(this.posX, this.posY, this.width, this.height);
+    context.stroke();
+  }
 }
 
 export default Ball;

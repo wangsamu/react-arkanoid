@@ -1,3 +1,5 @@
+import sound from "../sound/coin.wav";
+
 class Particle {
   width;
   height;
@@ -7,7 +9,7 @@ class Particle {
   posY;
   speed;
   frame = 0;
-
+  fxSound = this.getSound();
   constructor(
     posX: number,
     posY: number,
@@ -35,6 +37,10 @@ class Particle {
     }
 
     context.fillRect(this.posX, this.posY, this.width, this.height);
+  }
+  getSound() {
+    const soundFX = new Audio(sound);
+    return soundFX;
   }
 }
 

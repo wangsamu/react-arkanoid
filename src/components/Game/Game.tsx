@@ -221,6 +221,7 @@ const Game = (): JSX.Element => {
           particles[i].posX <= player.posX + player.barWidth &&
           particles[i].posX + particles[i].width >= player.posX
         ) {
+          particles[i].fxSound.play();
           setScore(score + 1);
           setParticles(
             particles.filter((particle) => particle !== particles[i])

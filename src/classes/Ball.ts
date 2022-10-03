@@ -17,10 +17,16 @@ class Ball {
   leftColliderY: number = 0;
   rightColliderX: number = 0;
   rightColliderY: number = 0;
+
   constructor(width: number = 3, height: number = 3, color: string = "#0ff") {
     this.width = width;
     this.height = height;
     this.color = color;
+  }
+
+  getSound(audioFile: string) {
+    const soundFX = new Audio(audioFile);
+    return soundFX;
   }
 
   getColliderPos(ballX: number, ballY: number) {

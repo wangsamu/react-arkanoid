@@ -1,10 +1,10 @@
-import pharaon from "../img/mob_37x39.png";
+import pharaon from "../img/mob_38x39.png";
 import Brick from "./Brick";
 
 class Mob {
   enemyList = [pharaon];
   enemy;
-  spriteWidth = 37;
+  spriteWidth = 38;
   spriteHeight = 39;
   spawnPosX;
   spawnPosY;
@@ -78,7 +78,8 @@ class Mob {
         );
         counter++;
       }
-      if (currentX === 36) currentY++;
+
+      if (currentX === this.spriteWidth - 1) currentY++;
     }
   }
 
@@ -99,6 +100,10 @@ class Mob {
         this.bricks[i].height - this.bricks[i].border
       );
     }
+  }
+
+  destroyBrick(brick: Brick) {
+    this.bricks = this.bricks.filter((element: Brick) => brick !== element);
   }
 }
 export default Mob;

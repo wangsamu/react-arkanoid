@@ -4,6 +4,7 @@ import Player from "../../classes/Player";
 import useFrame from "../../hooks/useFrame";
 import Ball from "../../classes/Ball";
 import Mob from "../../classes/Mob";
+import Particle from "../../classes/Particle";
 
 const Game = (): JSX.Element => {
   const [movement, setMovement] = useState<number>();
@@ -12,7 +13,8 @@ const Game = (): JSX.Element => {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const [player, setPlayer] = useState(new Player());
   const [ball, setBall] = useState(new Ball());
-  const [mob, setMob] = useState(new Mob(15, 0, 0));
+  const [mob, setMob] = useState(new Mob(10, 0, 0));
+  const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -33,7 +35,10 @@ const Game = (): JSX.Element => {
     player.drawPlayer(ctxRef.current!);
     mob.drawBricks(ctxRef.current!);
     ball.drawBall(ctxRef.current!);
-  }, [player, ball, mob]);
+    particles.forEach((particle) => {
+      particle.drawParticles(ctxRef.current!);
+    });
+  }, [player, ball, mob, particles]);
 
   const moveBall = useCallback(() => {
     ball.posY += ball.directionY * ball.speed;
@@ -110,7 +115,6 @@ const Game = (): JSX.Element => {
 
   const checkForBrickCollision = useCallback(() => {
     ball.getColliderPos(ball.posX, ball.posY);
-
     for (let i = 0; i < mob.bricks.length; i++) {
       if (
         ball.topColliderX >= mob.bricks[i].posX &&
@@ -119,6 +123,19 @@ const Game = (): JSX.Element => {
         ball.topColliderY >= mob.bricks[i].posY
       ) {
         changeBallDirectionY(mob.bricks[i].posY + mob.bricks[i].height);
+        const newParticles = [];
+        for (let x = 0; x < 4; x++) {
+          newParticles[x] = new Particle(
+            mob.bricks[i].posX + x,
+            mob.bricks[i].posY,
+            mob.bricks[i].color,
+            Math.round(Math.random() * (3 - 2) + 2),
+            Math.random() * (1.5 - 1) + 1
+          );
+          console.log(newParticles[x].speed, newParticles[x].width);
+        }
+        setParticles([...particles, ...newParticles]);
+        mob.destroyBrick(mob.bricks[i]);
         return;
       }
       if (
@@ -128,6 +145,18 @@ const Game = (): JSX.Element => {
         ball.botColliderY >= mob.bricks[i].posY
       ) {
         changeBallDirectionY(mob.bricks[i].posY - ball.height);
+        const newParticles = [];
+        for (let x = 0; x < 4; x++) {
+          newParticles[x] = new Particle(
+            mob.bricks[i].posX + x,
+            mob.bricks[i].posY,
+            mob.bricks[i].color,
+            Math.round(Math.random() * (3 - 2) + 2),
+            Math.random() * (1.5 - 1) + 1
+          );
+        }
+        setParticles([...particles, ...newParticles]);
+        mob.destroyBrick(mob.bricks[i]);
         return;
       }
       if (
@@ -137,6 +166,18 @@ const Game = (): JSX.Element => {
         ball.rightColliderY <= mob.bricks[i].posY + mob.bricks[i].height
       ) {
         changeBallDirectionX(mob.bricks[i].posX - ball.width);
+        const newParticles = [];
+        for (let x = 0; x < 4; x++) {
+          newParticles[x] = new Particle(
+            mob.bricks[i].posX + x,
+            mob.bricks[i].posY,
+            mob.bricks[i].color,
+            Math.round(Math.random() * (3 - 2) + 2),
+            Math.random() * (1.5 - 1) + 1
+          );
+        }
+        setParticles([...particles, ...newParticles]);
+        mob.destroyBrick(mob.bricks[i]);
         return;
       }
       if (
@@ -146,10 +187,23 @@ const Game = (): JSX.Element => {
         ball.leftColliderY <= mob.bricks[i].posY + mob.bricks[i].height
       ) {
         changeBallDirectionX(mob.bricks[i].posX + mob.bricks[i].width);
+        const newParticles = [];
+        for (let x = 0; x < 4; x++) {
+          newParticles[x] = new Particle(
+            mob.bricks[i].posX + x + 2,
+            mob.bricks[i].posY,
+            mob.bricks[i].color,
+            Math.round(Math.random() * (3 - 2) + 2),
+            Math.random() * (1.5 - 1) + 1
+          );
+        }
+        setParticles([...particles, ...newParticles]);
+
+        mob.destroyBrick(mob.bricks[i]);
         return;
       }
     }
-  }, [ball, mob, changeBallDirectionX, changeBallDirectionY]);
+  }, [ball, mob, changeBallDirectionX, changeBallDirectionY, particles]);
 
   const checkForCollision = useCallback(() => {
     checkForPlayerCollision();
@@ -172,14 +226,38 @@ const Game = (): JSX.Element => {
     }
   }, [player, movement]);
 
+  const moveParticles = useCallback(() => {
+    particles.forEach((particle) => {
+      particle.moveParticles();
+    });
+  }, [particles]);
+
+  const destroyItems = useCallback(() => {
+    for (let i = 0; i < particles.length; i++) {
+      if (particles[i].posY >= canvasRef.current!.height) {
+        setParticles(particles.filter((particle) => particle !== particles[i]));
+      }
+    }
+  }, [particles]);
+
   const gameLoop = useCallback(() => {
+    destroyItems();
     movePlayer();
     clearScreen();
     checkForCollision();
+    moveParticles();
     moveBall();
 
     render();
-  }, [clearScreen, moveBall, render, checkForCollision, movePlayer]);
+  }, [
+    clearScreen,
+    moveBall,
+    render,
+    checkForCollision,
+    movePlayer,
+    destroyItems,
+    moveParticles,
+  ]);
 
   useEffect(() => {
     gameLoop();

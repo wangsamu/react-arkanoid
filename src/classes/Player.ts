@@ -24,7 +24,7 @@ class Player {
   currentSprite = 0;
   posX = 80;
   posY = 290;
-  speed = 2;
+  speed = 3;
   sprite = this.getImage();
 
   constructor() {

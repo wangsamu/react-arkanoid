@@ -1,8 +1,9 @@
-import pharaon from "../img/mob_38x39.png";
+import pharaoh00 from "../img/pharaoh00.png";
+
 import Brick from "./Brick";
 
 class Mob {
-  enemyList = [pharaon];
+  enemyList = [pharaoh00];
   enemy;
   spriteWidth = 38;
   spriteHeight = 39;
@@ -67,7 +68,9 @@ class Mob {
       for (let x = 0; x < 4; x++) {
         colorValues[x] = this.spriteData[i][x];
       }
+
       const hexColor = this.getHexValue(colorValues);
+
       if (hexColor !== "#000000") {
         this.bricks[counter] = new Brick(
           hexColor,
@@ -85,7 +88,7 @@ class Mob {
 
   drawBricks(context: CanvasRenderingContext2D) {
     for (let i = 0; i < this.bricks.length; i++) {
-      context.fillStyle = "#000";
+      context.fillStyle = "#000000";
       context.fillRect(
         this.bricks[i].posX,
         this.bricks[i].posY,

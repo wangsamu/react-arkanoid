@@ -15,16 +15,20 @@ const Game = (): JSX.Element => {
   const [ball, setBall] = useState(new Ball());
   const [mob, setMob] = useState(new Mob(10, 0, 0));
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [score, setScore] = useState(0);
+  const backgroundColor = "#000d1a";
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
     ctxRef.current = ctx;
-    mob.drawMob(ctxRef.current!);
-    mob.getSpriteData(ctx);
-    mob.saveBricks();
-    ctxRef.current.fillStyle = "black";
+    if (mob.bricks.length === 0) {
+      mob.drawMob(ctxRef.current!);
+      mob.getSpriteData(ctx);
+      mob.saveBricks();
+    }
+    ctxRef.current.fillStyle = backgroundColor;
     ctxRef.current.fillRect(0, 0, canvas!.width, canvas!.height);
     ctxRef.current.stroke();
     ctxRef.current!.stroke();
@@ -49,7 +53,7 @@ const Game = (): JSX.Element => {
   }, [ball]);
 
   const clearScreen = useCallback(() => {
-    ctxRef.current!.fillStyle = "black";
+    ctxRef.current!.fillStyle = backgroundColor;
     ctxRef.current!.clearRect(
       0,
       0,
@@ -136,6 +140,7 @@ const Game = (): JSX.Element => {
         }
         setParticles([...particles, ...newParticles]);
         mob.destroyBrick(mob.bricks[i]);
+        setScore(score + 10);
         return;
       }
       if (
@@ -157,6 +162,7 @@ const Game = (): JSX.Element => {
         }
         setParticles([...particles, ...newParticles]);
         mob.destroyBrick(mob.bricks[i]);
+        setScore(score + 10);
         return;
       }
       if (
@@ -178,6 +184,7 @@ const Game = (): JSX.Element => {
         }
         setParticles([...particles, ...newParticles]);
         mob.destroyBrick(mob.bricks[i]);
+        setScore(score + 10);
         return;
       }
       if (
@@ -198,12 +205,12 @@ const Game = (): JSX.Element => {
           );
         }
         setParticles([...particles, ...newParticles]);
-
         mob.destroyBrick(mob.bricks[i]);
+        setScore(score + 10);
         return;
       }
     }
-  }, [ball, mob, changeBallDirectionX, changeBallDirectionY, particles]);
+  }, [ball, mob, changeBallDirectionX, changeBallDirectionY, particles, score]);
 
   const checkForCollision = useCallback(() => {
     checkForPlayerCollision();
@@ -284,16 +291,25 @@ const Game = (): JSX.Element => {
   return (
     <GameStyled className="game">
       <h2 className="game__title">GAME</h2>
-
-      <canvas
-        tabIndex={0}
-        className={"game__canvas"}
-        onKeyDown={(event) => handleKeyDown(event)}
-        onKeyUp={(event) => handleKeyUp(event)}
-        ref={canvasRef}
-        width={320}
-        height={320}
-      />
+      <div className="game__wrap">
+        <canvas
+          tabIndex={0}
+          className={"game__canvas"}
+          onKeyDown={(event) => handleKeyDown(event)}
+          onKeyUp={(event) => handleKeyUp(event)}
+          ref={canvasRef}
+          width={320}
+          height={320}
+        />
+        <div className="game__score">
+          <ul>
+            <li>
+              <h2>SCORE</h2>
+              <span>{score}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </GameStyled>
   );
 };

@@ -92,7 +92,7 @@ const Game = (): JSX.Element => {
       ball.posY <= player.posY + player.height
     ) {
       if (
-        ball.posX <= player.posX + player.spriteWidth &&
+        ball.posX <= player.posX + player.barWidth &&
         ball.posX + ball.width >= player.posX
       ) {
         changeBallDirectionY(player.posY - ball.height);
@@ -136,7 +136,6 @@ const Game = (): JSX.Element => {
             Math.round(Math.random() * (3 - 2) + 2),
             Math.random() * (1.5 - 1) + 1
           );
-          console.log(newParticles[x].speed, newParticles[x].width);
         }
         setParticles([...particles, ...newParticles]);
         mob.destroyBrick(mob.bricks[i]);
@@ -212,11 +211,38 @@ const Game = (): JSX.Element => {
     }
   }, [ball, mob, changeBallDirectionX, changeBallDirectionY, particles, score]);
 
+  const checkForParticleCollision = useCallback(() => {
+    for (let i = 0; i < particles.length; i++) {
+      if (
+        particles[i].posY + particles[i].height >= player.posY &&
+        particles[i].posY <= player.posY + player.height
+      ) {
+        if (
+          particles[i].posX <= player.posX + player.barWidth &&
+          particles[i].posX + particles[i].width >= player.posX
+        ) {
+          setScore(score + 1);
+          setParticles(
+            particles.filter((particle) => particle !== particles[i])
+          );
+          return;
+        }
+        return;
+      }
+    }
+  }, [player, particles, score]);
+
   const checkForCollision = useCallback(() => {
     checkForPlayerCollision();
+    checkForParticleCollision();
     checkForBrickCollision();
     checkForWallCollision();
-  }, [checkForPlayerCollision, checkForWallCollision, checkForBrickCollision]);
+  }, [
+    checkForPlayerCollision,
+    checkForWallCollision,
+    checkForBrickCollision,
+    checkForParticleCollision,
+  ]);
 
   const movePlayer = useCallback(() => {
     if (movement === -1) {

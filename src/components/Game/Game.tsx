@@ -3,6 +3,8 @@ import GameStyled from "./GameStyled";
 import Player from "../../classes/Player";
 import useFrame from "../../hooks/useFrame";
 import Ball from "../../classes/Ball";
+import Mob from "../../classes/Mob";
+import Particle from "../../classes/Particle";
 
 const Game = (): JSX.Element => {
   const [movement, setMovement] = useState<number>();
@@ -11,40 +13,47 @@ const Game = (): JSX.Element => {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const [player, setPlayer] = useState(new Player());
   const [ball, setBall] = useState(new Ball());
+  const [mob, setMob] = useState(new Mob(10, 0, 0));
+  const [particles, setParticles] = useState<Particle[]>([]);
+  const [score, setScore] = useState(0);
+  const backgroundColor = "#000d1a";
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d") as CanvasRenderingContext2D;
     ctx.imageSmoothingEnabled = false;
     ctxRef.current = ctx;
-    ctxRef.current.fillStyle = "black";
+    if (mob.bricks.length === 0) {
+      mob.drawMob(ctxRef.current!);
+      mob.getSpriteData(ctx);
+      mob.saveBricks();
+    }
+    ctxRef.current.fillStyle = backgroundColor;
     ctxRef.current.fillRect(0, 0, canvas!.width, canvas!.height);
     ctxRef.current.stroke();
+    ctxRef.current!.stroke();
     canvas!.focus();
-  }, []);
+  }, [mob]);
 
   const render = useCallback(() => {
-    ctxRef.current!.fillStyle = player.color;
-    ctxRef.current!.fillRect(
-      player.posX,
-      player.posY,
-      player.width,
-      player.height
-    );
-    ctxRef.current!.stroke();
-    ctxRef.current!.fillStyle = ball.color;
-    ctxRef.current!.fillRect(ball.posX, ball.posY, ball.width, ball.height);
-    ctxRef.current!.stroke();
-  }, [player, ball]);
+    player.drawPlayer(ctxRef.current!);
+    mob.drawBricks(ctxRef.current!);
+    ball.drawBall(ctxRef.current!);
+    particles.forEach((particle) => {
+      particle.drawParticles(ctxRef.current!);
+    });
+  }, [player, ball, mob, particles]);
 
   const moveBall = useCallback(() => {
     ball.posY += ball.directionY * ball.speed;
     ball.posX += ball.directionX * ball.speed;
+    ball.gridPosX = Math.round(ball.posX);
+    ball.gridPosY = Math.round(ball.posY);
     setBall(ball);
   }, [ball]);
 
   const clearScreen = useCallback(() => {
-    ctxRef.current!.fillStyle = "black";
+    ctxRef.current!.fillStyle = backgroundColor;
     ctxRef.current!.clearRect(
       0,
       0,
@@ -59,16 +68,23 @@ const Game = (): JSX.Element => {
     );
   }, []);
 
-  const changeBallDirectionY = useCallback(() => {
-    ball.directionY = ball.directionY * -1;
+  const changeBallDirectionY = useCallback(
+    (transformLocation: number) => {
+      ball.posY = transformLocation;
+      ball.directionY = ball.directionY * -1;
+      setBall(ball);
+    },
+    [ball]
+  );
 
-    setBall(ball);
-  }, [ball]);
-
-  const changeBallDirectionX = useCallback(() => {
-    ball.directionX = ball.directionX * -1;
-    setBall(ball);
-  }, [ball]);
+  const changeBallDirectionX = useCallback(
+    (transformLocation: number) => {
+      ball.posX = transformLocation;
+      ball.directionX = ball.directionX * -1;
+      setBall(ball);
+    },
+    [ball]
+  );
 
   const checkForPlayerCollision = useCallback(() => {
     if (
@@ -76,65 +92,206 @@ const Game = (): JSX.Element => {
       ball.posY <= player.posY + player.height
     ) {
       if (
-        ball.posX <= player.posX + player.width &&
+        ball.posX <= player.posX + player.barWidth &&
         ball.posX + ball.width >= player.posX
       ) {
-        changeBallDirectionY();
-        if (ball.posX + ball.width <= player.posX + 5) {
-          changeBallDirectionX();
-          return;
-        }
-        if (ball.posX >= player.posX + player.width - 5) {
-          changeBallDirectionX();
-          return;
-        }
+        changeBallDirectionY(player.posY - ball.height);
         return;
       }
       return;
     }
-  }, [ball, changeBallDirectionY, changeBallDirectionX, player]);
+  }, [ball, changeBallDirectionY, player]);
 
   const checkForWallCollision = useCallback(() => {
     if (ball.posX + ball.width >= canvasRef.current!.width) {
-      changeBallDirectionX();
+      changeBallDirectionX(canvasRef.current!.width - ball.width);
       return;
     }
     if (ball.posX <= 0) {
-      changeBallDirectionX();
+      changeBallDirectionX(0);
       return;
     }
     if (ball.posY <= 0) {
-      changeBallDirectionY();
+      changeBallDirectionY(0);
       return;
     }
   }, [ball, changeBallDirectionX, changeBallDirectionY]);
 
+  const checkForBrickCollision = useCallback(() => {
+    ball.getColliderPos(ball.posX, ball.posY);
+    for (let i = 0; i < mob.bricks.length; i++) {
+      if (
+        ball.topColliderX >= mob.bricks[i].posX &&
+        ball.topColliderX <= mob.bricks[i].posX + mob.bricks[i].width &&
+        ball.topColliderY <= mob.bricks[i].posY + mob.bricks[i].height &&
+        ball.topColliderY >= mob.bricks[i].posY
+      ) {
+        changeBallDirectionY(mob.bricks[i].posY + mob.bricks[i].height);
+        const newParticles = [];
+        for (let x = 0; x < 4; x++) {
+          newParticles[x] = new Particle(
+            mob.bricks[i].posX + x,
+            mob.bricks[i].posY,
+            mob.bricks[i].color,
+            Math.round(Math.random() * (3 - 2) + 2),
+            Math.random() * (1.5 - 1) + 1
+          );
+        }
+        setParticles([...particles, ...newParticles]);
+        mob.destroyBrick(mob.bricks[i]);
+        setScore(score + 10);
+        return;
+      }
+      if (
+        ball.botColliderX >= mob.bricks[i].posX &&
+        ball.botColliderX <= mob.bricks[i].posX + mob.bricks[i].width &&
+        ball.botColliderY <= mob.bricks[i].posY + mob.bricks[i].height &&
+        ball.botColliderY >= mob.bricks[i].posY
+      ) {
+        changeBallDirectionY(mob.bricks[i].posY - ball.height);
+        const newParticles = [];
+        for (let x = 0; x < 4; x++) {
+          newParticles[x] = new Particle(
+            mob.bricks[i].posX + x,
+            mob.bricks[i].posY,
+            mob.bricks[i].color,
+            Math.round(Math.random() * (3 - 2) + 2),
+            Math.random() * (1.5 - 1) + 1
+          );
+        }
+        setParticles([...particles, ...newParticles]);
+        mob.destroyBrick(mob.bricks[i]);
+        setScore(score + 10);
+        return;
+      }
+      if (
+        ball.rightColliderX >= mob.bricks[i].posX &&
+        ball.rightColliderX <= mob.bricks[i].posX + mob.bricks[i].width &&
+        ball.rightColliderY >= mob.bricks[i].posY &&
+        ball.rightColliderY <= mob.bricks[i].posY + mob.bricks[i].height
+      ) {
+        changeBallDirectionX(mob.bricks[i].posX - ball.width);
+        const newParticles = [];
+        for (let x = 0; x < 4; x++) {
+          newParticles[x] = new Particle(
+            mob.bricks[i].posX + x,
+            mob.bricks[i].posY,
+            mob.bricks[i].color,
+            Math.round(Math.random() * (3 - 2) + 2),
+            Math.random() * (1.5 - 1) + 1
+          );
+        }
+        setParticles([...particles, ...newParticles]);
+        mob.destroyBrick(mob.bricks[i]);
+        setScore(score + 10);
+        return;
+      }
+      if (
+        ball.leftColliderX >= mob.bricks[i].posX &&
+        ball.leftColliderX <= mob.bricks[i].posX + mob.bricks[i].width &&
+        ball.leftColliderY >= mob.bricks[i].posY &&
+        ball.leftColliderY <= mob.bricks[i].posY + mob.bricks[i].height
+      ) {
+        changeBallDirectionX(mob.bricks[i].posX + mob.bricks[i].width);
+        const newParticles = [];
+        for (let x = 0; x < 4; x++) {
+          newParticles[x] = new Particle(
+            mob.bricks[i].posX + x + 2,
+            mob.bricks[i].posY,
+            mob.bricks[i].color,
+            Math.round(Math.random() * (3 - 2) + 2),
+            Math.random() * (1.5 - 1) + 1
+          );
+        }
+        setParticles([...particles, ...newParticles]);
+        mob.destroyBrick(mob.bricks[i]);
+        setScore(score + 10);
+        return;
+      }
+    }
+  }, [ball, mob, changeBallDirectionX, changeBallDirectionY, particles, score]);
+
+  const checkForParticleCollision = useCallback(() => {
+    for (let i = 0; i < particles.length; i++) {
+      if (
+        particles[i].posY + particles[i].height >= player.posY &&
+        particles[i].posY <= player.posY + player.height
+      ) {
+        if (
+          particles[i].posX <= player.posX + player.barWidth &&
+          particles[i].posX + particles[i].width >= player.posX
+        ) {
+          particles[i].fxSound.play();
+          setScore(score + 1);
+          setParticles(
+            particles.filter((particle) => particle !== particles[i])
+          );
+          return;
+        }
+        return;
+      }
+    }
+  }, [player, particles, score]);
+
   const checkForCollision = useCallback(() => {
     checkForPlayerCollision();
+    checkForParticleCollision();
+    checkForBrickCollision();
     checkForWallCollision();
-  }, [checkForPlayerCollision, checkForWallCollision]);
+  }, [
+    checkForPlayerCollision,
+    checkForWallCollision,
+    checkForBrickCollision,
+    checkForParticleCollision,
+  ]);
 
   const movePlayer = useCallback(() => {
     if (movement === -1) {
+      player.walkAnimation(movement);
       player.posX -= player.speed;
       setPlayer(player);
       return;
     }
     if (movement === +1) {
+      player.walkAnimation(movement);
       player.posX += player.speed;
       setPlayer(player);
       return;
     }
   }, [player, movement]);
 
+  const moveParticles = useCallback(() => {
+    particles.forEach((particle) => {
+      particle.moveParticles();
+    });
+  }, [particles]);
+
+  const destroyItems = useCallback(() => {
+    for (let i = 0; i < particles.length; i++) {
+      if (particles[i].posY >= canvasRef.current!.height) {
+        setParticles(particles.filter((particle) => particle !== particles[i]));
+      }
+    }
+  }, [particles]);
+
   const gameLoop = useCallback(() => {
+    destroyItems();
     movePlayer();
     clearScreen();
     checkForCollision();
+    moveParticles();
     moveBall();
 
     render();
-  }, [clearScreen, moveBall, render, checkForCollision, movePlayer]);
+  }, [
+    clearScreen,
+    moveBall,
+    render,
+    checkForCollision,
+    movePlayer,
+    destroyItems,
+    moveParticles,
+  ]);
 
   useEffect(() => {
     gameLoop();
@@ -161,15 +318,25 @@ const Game = (): JSX.Element => {
   return (
     <GameStyled className="game">
       <h2 className="game__title">GAME</h2>
-      <canvas
-        tabIndex={0}
-        className={"game__canvas"}
-        onKeyDown={(event) => handleKeyDown(event)}
-        onKeyUp={(event) => handleKeyUp(event)}
-        ref={canvasRef}
-        width={320}
-        height={480}
-      />
+      <div className="game__wrap">
+        <canvas
+          tabIndex={0}
+          className={"game__canvas"}
+          onKeyDown={(event) => handleKeyDown(event)}
+          onKeyUp={(event) => handleKeyUp(event)}
+          ref={canvasRef}
+          width={320}
+          height={320}
+        />
+        <div className="game__score">
+          <ul>
+            <li>
+              <h2>SCORE</h2>
+              <span>{score}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
     </GameStyled>
   );
 };

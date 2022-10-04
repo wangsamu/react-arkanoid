@@ -11,10 +11,28 @@ const GameStyled = styled.section`
       margin: 0;
       text-align: center;
     }
-    &__canvas {
+    &__wrap {
       margin: auto auto;
-      width: 30%;
-      height: 75%;
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+    &__score {
+      margin-left: 10px;
+      width: 200px;
+      height: 640px;
+      border: 2px solid white;
+      ul {
+        list-style: none;
+        color: white;
+        padding: 0;
+        text-align: center;
+      }
+    }
+    &__canvas {
+      margin-right: 10px;
+      height: 640px;
+      width: 640px;
       border: 2px solid white;
       image-rendering: pixelated;
     }

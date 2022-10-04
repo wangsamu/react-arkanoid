@@ -29,7 +29,7 @@ function App() {
   console.log(currentUser);
   return (
     <AppStyled className="wrap-container">
-      {currentUser ? <button>Sign out</button> : <SignIn />}
+      {/* {currentUser ? <button>Sign out</button> : <SignIn />} */}
       <Game />
     </AppStyled>
   );

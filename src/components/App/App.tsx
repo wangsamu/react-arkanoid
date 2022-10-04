@@ -5,9 +5,11 @@ import { RootState } from "../../app/store";
 import {
   createUserDocumentFromAuth,
   onAuthStateChangedListener,
+  signOutUser,
 } from "../../utils/firebase/firebaseUtils";
 import Game from "../Game/Game";
 import SignIn from "../SignIn/SignIn";
+import SignOut from "../SignOut/SignOut";
 import AppStyled from "./AppStyled";
 
 function App() {
@@ -29,11 +31,7 @@ function App() {
   console.log(currentUser);
   return (
     <AppStyled className="wrap-container">
-<<<<<<< HEAD
-      {currentUser ? <button>Sign out</button> : <SignIn />}
-=======
-      {/* {currentUser ? <button>Sign out</button> : <SignIn />} */}
->>>>>>> features/users-slice
+      {currentUser ? <SignOut signOutUser={signOutUser} /> : <SignIn />}
       <Game />
     </AppStyled>
   );

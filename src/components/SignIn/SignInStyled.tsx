@@ -7,6 +7,11 @@ const SignInContainer = styled.div`
 
   h2 {
     margin: 10px 0;
+    color: white;
+  }
+
+  span {
+    color: white;
   }
 `;
 const ButonsContainer = styled.div`
@@ -14,7 +19,6 @@ const ButonsContainer = styled.div`
   justify-content: space-between;
 `;
 
-const FormInput = styled.div`
-`
+const FormInput = styled.div``;
 
 export { SignInContainer, ButonsContainer };

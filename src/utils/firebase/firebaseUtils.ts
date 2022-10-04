@@ -31,7 +31,7 @@ export const db = getFirestore();
 //sign-in with Google
 const googleProvider = new GoogleAuthProvider();
 
-const signInwithGooglePopUp = () => {
+const signInWithGooglePopup = () => {
   signInWithPopup(auth, googleProvider);
   console.log(auth);
 };
@@ -61,7 +61,7 @@ const createUserDocumentFromAuth = async (
         createdAt,
         // ...additionalInfo,
       });
-      console.log(displayName, email);
+      console.log(`user created suceessfully! ${displayName}`);
     } catch (error: any) {
       console.log("error creating user", error.message);
     }
@@ -76,7 +76,7 @@ const onAuthStateChangedListener = (callback: any) =>
   onAuthStateChanged(auth, callback);
 
 export {
-  signInwithGooglePopUp,
+  signInWithGooglePopup,
   createUserDocumentFromAuth,
   onAuthStateChangedListener,
 };

@@ -29,7 +29,11 @@ function App() {
   console.log(currentUser);
   return (
     <AppStyled className="wrap-container">
+<<<<<<< HEAD
       {currentUser ? <button>Sign out</button> : <SignIn />}
+=======
+      {/* {currentUser ? <button>Sign out</button> : <SignIn />} */}
+>>>>>>> features/users-slice
       <Game />
     </AppStyled>
   );

@@ -5,8 +5,10 @@ import useFrame from "../../hooks/useFrame";
 import Ball from "../../classes/Ball";
 import Mob from "../../classes/Mob";
 import Particle from "../../classes/Particle";
+import useSound from "../../hooks/useSound";
 
 const Game = (): JSX.Element => {
+  const { playSound } = useSound();
   const [movement, setMovement] = useState<number>();
   const frameTime = useFrame();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -16,7 +18,7 @@ const Game = (): JSX.Element => {
   const [mob, setMob] = useState(new Mob(10, 0, 0));
   const [particles, setParticles] = useState<Particle[]>([]);
   const [score, setScore] = useState(0);
-  const backgroundColor = "#000d1a";
+  const backgroundColor = "#070F09";
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -95,29 +97,37 @@ const Game = (): JSX.Element => {
         ball.posX <= player.posX + player.barWidth &&
         ball.posX + ball.width >= player.posX
       ) {
+        playSound("hit");
         changeBallDirectionY(player.posY - ball.height);
         return;
       }
       return;
     }
-  }, [ball, changeBallDirectionY, player]);
+  }, [ball, changeBallDirectionY, player, playSound]);
 
   const checkForWallCollision = useCallback(() => {
     if (ball.posX + ball.width >= canvasRef.current!.width) {
+      playSound("hit");
       changeBallDirectionX(canvasRef.current!.width - ball.width);
       return;
     }
     if (ball.posX <= 0) {
+      playSound("hit");
       changeBallDirectionX(0);
       return;
     }
     if (ball.posY <= 0) {
+      playSound("hit");
       changeBallDirectionY(0);
       return;
     }
-  }, [ball, changeBallDirectionX, changeBallDirectionY]);
+  }, [ball, changeBallDirectionX, changeBallDirectionY, playSound]);
 
   const checkForBrickCollision = useCallback(() => {
+    let touchingTop = false;
+    let touchingBot = false;
+    let touchingRight = false;
+    let touchingLeft = false;
     ball.getColliderPos(ball.posX, ball.posY);
     for (let i = 0; i < mob.bricks.length; i++) {
       if (
@@ -126,21 +136,8 @@ const Game = (): JSX.Element => {
         ball.topColliderY <= mob.bricks[i].posY + mob.bricks[i].height &&
         ball.topColliderY >= mob.bricks[i].posY
       ) {
-        changeBallDirectionY(mob.bricks[i].posY + mob.bricks[i].height);
-        const newParticles = [];
-        for (let x = 0; x < 4; x++) {
-          newParticles[x] = new Particle(
-            mob.bricks[i].posX + x,
-            mob.bricks[i].posY,
-            mob.bricks[i].color,
-            Math.round(Math.random() * (3 - 2) + 2),
-            Math.random() * (1.5 - 1) + 1
-          );
-        }
-        setParticles([...particles, ...newParticles]);
-        mob.destroyBrick(mob.bricks[i]);
-        setScore(score + 10);
-        return;
+        console.log("TOP HIT");
+        touchingTop = true;
       }
       if (
         ball.botColliderX >= mob.bricks[i].posX &&
@@ -148,21 +145,7 @@ const Game = (): JSX.Element => {
         ball.botColliderY <= mob.bricks[i].posY + mob.bricks[i].height &&
         ball.botColliderY >= mob.bricks[i].posY
       ) {
-        changeBallDirectionY(mob.bricks[i].posY - ball.height);
-        const newParticles = [];
-        for (let x = 0; x < 4; x++) {
-          newParticles[x] = new Particle(
-            mob.bricks[i].posX + x,
-            mob.bricks[i].posY,
-            mob.bricks[i].color,
-            Math.round(Math.random() * (3 - 2) + 2),
-            Math.random() * (1.5 - 1) + 1
-          );
-        }
-        setParticles([...particles, ...newParticles]);
-        mob.destroyBrick(mob.bricks[i]);
-        setScore(score + 10);
-        return;
+        touchingBot = true;
       }
       if (
         ball.rightColliderX >= mob.bricks[i].posX &&
@@ -170,7 +153,25 @@ const Game = (): JSX.Element => {
         ball.rightColliderY >= mob.bricks[i].posY &&
         ball.rightColliderY <= mob.bricks[i].posY + mob.bricks[i].height
       ) {
-        changeBallDirectionX(mob.bricks[i].posX - ball.width);
+        touchingRight = true;
+      }
+      if (
+        ball.leftColliderX >= mob.bricks[i].posX &&
+        ball.leftColliderX <= mob.bricks[i].posX + mob.bricks[i].width &&
+        ball.leftColliderY >= mob.bricks[i].posY &&
+        ball.leftColliderY <= mob.bricks[i].posY + mob.bricks[i].height
+      ) {
+        touchingLeft = true;
+      }
+      if (touchingTop || touchingBot || touchingLeft || touchingRight) {
+        if (touchingTop)
+          changeBallDirectionY(mob.bricks[i].posY + mob.bricks[i].height);
+        else if (touchingBot)
+          changeBallDirectionY(mob.bricks[i].posY - ball.height);
+        else if (touchingRight)
+          changeBallDirectionX(mob.bricks[i].posX - ball.width);
+        else if (touchingLeft)
+          changeBallDirectionX(mob.bricks[i].posX + mob.bricks[i].width);
         const newParticles = [];
         for (let x = 0; x < 4; x++) {
           newParticles[x] = new Particle(
@@ -184,32 +185,19 @@ const Game = (): JSX.Element => {
         setParticles([...particles, ...newParticles]);
         mob.destroyBrick(mob.bricks[i]);
         setScore(score + 10);
-        return;
-      }
-      if (
-        ball.leftColliderX >= mob.bricks[i].posX &&
-        ball.leftColliderX <= mob.bricks[i].posX + mob.bricks[i].width &&
-        ball.leftColliderY >= mob.bricks[i].posY &&
-        ball.leftColliderY <= mob.bricks[i].posY + mob.bricks[i].height
-      ) {
-        changeBallDirectionX(mob.bricks[i].posX + mob.bricks[i].width);
-        const newParticles = [];
-        for (let x = 0; x < 4; x++) {
-          newParticles[x] = new Particle(
-            mob.bricks[i].posX + x + 2,
-            mob.bricks[i].posY,
-            mob.bricks[i].color,
-            Math.round(Math.random() * (3 - 2) + 2),
-            Math.random() * (1.5 - 1) + 1
-          );
-        }
-        setParticles([...particles, ...newParticles]);
-        mob.destroyBrick(mob.bricks[i]);
-        setScore(score + 10);
+        playSound("brick");
         return;
       }
     }
-  }, [ball, mob, changeBallDirectionX, changeBallDirectionY, particles, score]);
+  }, [
+    ball,
+    mob,
+    changeBallDirectionX,
+    changeBallDirectionY,
+    particles,
+    score,
+    playSound,
+  ]);
 
   const checkForParticleCollision = useCallback(() => {
     for (let i = 0; i < particles.length; i++) {
@@ -221,7 +209,7 @@ const Game = (): JSX.Element => {
           particles[i].posX <= player.posX + player.barWidth &&
           particles[i].posX + particles[i].width >= player.posX
         ) {
-          particles[i].fxSound.play();
+          playSound("coin");
           setScore(score + 1);
           setParticles(
             particles.filter((particle) => particle !== particles[i])
@@ -231,7 +219,7 @@ const Game = (): JSX.Element => {
         return;
       }
     }
-  }, [player, particles, score]);
+  }, [player, particles, score, playSound]);
 
   const checkForCollision = useCallback(() => {
     checkForPlayerCollision();
@@ -326,7 +314,7 @@ const Game = (): JSX.Element => {
           onKeyUp={(event) => handleKeyUp(event)}
           ref={canvasRef}
           width={320}
-          height={320}
+          height={240}
         />
         <div className="game__score">
           <ul>

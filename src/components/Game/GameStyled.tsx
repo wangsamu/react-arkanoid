@@ -31,8 +31,8 @@ const GameStyled = styled.section`
     }
     &__canvas {
       margin-right: 10px;
-      height: 640px;
-      width: 640px;
+      height: 720px;
+      width: 960px;
       border: 2px solid white;
       image-rendering: pixelated;
     }

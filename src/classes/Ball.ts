@@ -2,11 +2,11 @@ class Ball {
   width;
   height;
   color;
-  posX = 50;
+  posX = 70;
   posY = 200;
   gridPosX = 0;
   gridPosY = 0;
-  speed = 1.5;
+  speed = 1;
   directionY = 1;
   directionX = 1;
   topColliderX: number = 0;
@@ -18,26 +18,21 @@ class Ball {
   rightColliderX: number = 0;
   rightColliderY: number = 0;
 
-  constructor(width: number = 3, height: number = 3, color: string = "#0ff") {
+  constructor(width: number = 2, height: number = 2, color: string = "#0ff") {
     this.width = width;
     this.height = height;
     this.color = color;
   }
 
-  getSound(audioFile: string) {
-    const soundFX = new Audio(audioFile);
-    return soundFX;
-  }
-
   getColliderPos(ballX: number, ballY: number) {
-    this.topColliderX = ballX + 2;
+    this.topColliderX = ballX + this.width / 2;
     this.topColliderY = ballY;
-    this.botColliderX = ballX + 2;
+    this.botColliderX = ballX + this.width / 2;
     this.botColliderY = ballY + this.height;
-    this.leftColliderX = ballX - 1;
-    this.leftColliderY = ballY + 2;
-    this.rightColliderX = ballX + this.width + 1;
-    this.rightColliderY = ballY + 2;
+    this.leftColliderX = ballX;
+    this.leftColliderY = ballY + this.height / 2;
+    this.rightColliderX = ballX + this.width;
+    this.rightColliderY = ballY + this.height / 2;
   }
 
   drawBall(context: CanvasRenderingContext2D) {

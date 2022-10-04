@@ -88,19 +88,19 @@ class Mob {
 
   drawBricks(context: CanvasRenderingContext2D) {
     for (let i = 0; i < this.bricks.length; i++) {
-      context.fillStyle = "#000000";
-      context.fillRect(
-        this.bricks[i].posX,
-        this.bricks[i].posY,
-        this.bricks[i].width,
-        this.bricks[i].height
-      );
+      // context.fillStyle = "#000000";
+      // context.fillRect(
+      //   this.bricks[i].posX,
+      //   this.bricks[i].posY,
+      //   this.bricks[i].width,
+      //   this.bricks[i].height
+      // );
       context.fillStyle = this.bricks[i].color;
       context.fillRect(
         this.bricks[i].posX + this.bricks[i].border,
         this.bricks[i].posY + this.bricks[i].border,
-        this.bricks[i].width - this.bricks[i].border,
-        this.bricks[i].height - this.bricks[i].border
+        this.bricks[i].width + this.bricks[i].border * -2,
+        this.bricks[i].height + this.bricks[i].border * -2
       );
     }
   }

@@ -14,4 +14,7 @@ const ButonsContainer = styled.div`
   justify-content: space-between;
 `;
 
+const FormInput = styled.div`
+`
+
 export { SignInContainer, ButonsContainer };

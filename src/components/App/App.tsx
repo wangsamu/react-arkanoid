@@ -31,9 +31,9 @@ function App() {
   console.log(currentUser);
   return (
     <AppStyled className="wrap-container">
-      {/* {currentUser && <SignOut signOutUser={signOutUser} />}
-      {currentUser ? <Game /> : <SignIn />} */}
-      <Game />
+      {currentUser ? <Game /> : <SignIn />}
+      {currentUser && <SignOut signOutUser={signOutUser} />}
+      {/* <Game /> */}
     </AppStyled>
   );
 }

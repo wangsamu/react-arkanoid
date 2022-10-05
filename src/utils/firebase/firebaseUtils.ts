@@ -41,8 +41,8 @@ const signInWithGooglePopup = () => {
 
 //for new sign-ups, creating a copy of the user in firestore
 const createUserDocumentFromAuth = async (
-  userAuth: any
-  // additionalInfo: any
+  userAuth: any,
+  additionalInfo?: any
 ) => {
   if (!userAuth) return;
 

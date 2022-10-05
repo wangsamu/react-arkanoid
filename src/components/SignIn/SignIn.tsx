@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { signInWithGooglePopup } from "../../utils/firebase/firebaseUtils";
+import {
+  signInAuthWithEmailAndPassword,
+  signInWithGooglePopup,
+} from "../../utils/firebase/firebaseUtils";
 import { ButonsContainer, SignInContainer } from "./SignInStyled";
 
 const defaultFormField = {
@@ -22,8 +25,12 @@ function SignIn() {
 
     try {
       // check if user is authenticated with email and password
-      // const { user } = await signInAuthWithEmailAndPassword(email, password);
-      // console.log("Logged in successfully!");
+      const { user } =
+        (await signInAuthWithEmailAndPassword(email, password)) || {};
+      if (!user) {
+        throw new Error("Invalid credentials!");
+      }
+      console.log("Logged in successfully!");
       refreshFormFields();
     } catch (error: any) {
       if (
@@ -80,7 +87,9 @@ function SignIn() {
           );
         })}
         <ButonsContainer>
-          <button type="submit">Sign In</button>
+          <button type="button" onClick={handleSubmit}>
+            Sign In
+          </button>
           <button type="button" onClick={logGoogleUser}>
             Sign-in with Google
           </button>

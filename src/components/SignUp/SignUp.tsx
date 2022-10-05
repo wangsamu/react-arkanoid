@@ -4,6 +4,8 @@ import {
   createUserDocumentFromAuth,
 } from "../../utils/firebase/firebaseUtils";
 
+import { SignUpContainer } from "./SignUpStyled";
+
 const defaultFormField = {
   displayName: "",
   email: "",
@@ -11,7 +13,7 @@ const defaultFormField = {
   confirmPassword: "",
 };
 
-function SignUpForm() {
+function SignUp() {
   const [formFields, setFormFields] = useState(defaultFormField);
   const { displayName, email, password, confirmPassword } = formFields;
 
@@ -33,6 +35,9 @@ function SignUpForm() {
       //check if user is authenticated with email and password
       const { user } =
         (await createAuthUserWithEmailAndPassword(email, password)) || {};
+      if (!user) {
+        throw new Error("Something went wrong!");
+      }
       //create a user document with data introduced
       await createUserDocumentFromAuth(user, {
         displayName,
@@ -90,20 +95,22 @@ function SignUpForm() {
     },
   ];
   return (
-    <div>
+    <SignUpContainer>
       <h2>Don't have an account yet?</h2>
-      <span>Sign up in a just a few seconds!</span>
+      <h3>Sign up in a just a few seconds!</h3>
       <form onSubmit={handleSubmit}>
         {formInputList.map((inputs) => (
           <div key={inputs.label}>
-            <input required {...inputs.inputOptions} />
             <label>{inputs.label}</label>
+            <input required {...inputs.inputOptions} />
           </div>
         ))}
-        <button type="submit">Sign Up</button>
+        <button type="button" onClick={handleSubmit}>
+          Sign Up
+        </button>
       </form>
-    </div>
+    </SignUpContainer>
   );
 }
 
-export default SignUpForm;
+export default SignUp;

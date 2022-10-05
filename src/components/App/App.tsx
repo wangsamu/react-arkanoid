@@ -10,6 +10,8 @@ import {
 import Game from "../Game/Game";
 import SignIn from "../SignIn/SignIn";
 import SignOut from "../SignOut/SignOut";
+import SignUp from "../SignUp/SignUp";
+import SignUpForm from "../SignUp/SignUp";
 import AppStyled from "./AppStyled";
 
 function App() {
@@ -31,7 +33,7 @@ function App() {
   console.log(currentUser);
   return (
     <AppStyled className="wrap-container">
-      {currentUser ? <Game /> : <SignIn />}
+      {currentUser ? <Game /> : <SignUp />}
       {currentUser && <SignOut signOutUser={signOutUser} />}
       {/* <Game /> */}
     </AppStyled>

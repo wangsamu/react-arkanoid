@@ -14,6 +14,7 @@ const SignInContainer = styled.div`
     color: white;
   }
 `;
+
 const ButonsContainer = styled.div`
   display: flex;
   justify-content: space-between;

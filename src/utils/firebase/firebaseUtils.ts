@@ -5,9 +5,11 @@ import "firebase/compat/firestore";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import {
+  createUserWithEmailAndPassword,
   getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
 } from "firebase/auth";
@@ -76,11 +78,28 @@ const createUserDocumentFromAuth = async (
 const onAuthStateChangedListener = (callback: any) =>
   onAuthStateChanged(auth, callback);
 
+const createAuthUserWithEmailAndPassword = async (
+  email: any,
+  password: any
+) => {
+  if (!email || !password) return;
+
+  return await createUserWithEmailAndPassword(auth, email, password);
+};
+
+const signInAuthWithEmailAndPassword = async (email: any, password: any) => {
+  if (!email || !password) return;
+
+  return await signInWithEmailAndPassword(auth, email, password);
+};
+
 const signOutUser = async () => await signOut(auth);
 
 export {
   signInWithGooglePopup,
   createUserDocumentFromAuth,
   onAuthStateChangedListener,
+  createAuthUserWithEmailAndPassword,
+  signInAuthWithEmailAndPassword,
   signOutUser,
 };

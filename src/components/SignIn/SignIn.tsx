@@ -68,7 +68,6 @@ function SignIn() {
   return (
     // <button onClick={signInwithGooglePopUp}>Sign in with Google</button>
     <SignInContainer>
-      <h2>I already have an account</h2>
       <span>Sign in using email and password</span>
       <form onSubmit={handleSubmit}>
         {formInputList.map((inputs: any) => {

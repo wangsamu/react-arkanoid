@@ -7,7 +7,9 @@ const useFrame = () => {
     const frame = (time: number) => {
       setFrame(time);
       frameId = requestAnimationFrame(frame);
+      console.log(frameId, time);
     };
+
     requestAnimationFrame(frame);
     return () => cancelAnimationFrame(frameId);
   }, []);

@@ -26,14 +26,19 @@ class Player {
   ];
   currentSprite = 0;
   posX = 80;
-  posY = 290;
-  speed = 3;
+  posY = 212;
+  speed = 2;
   sprite = this.getImage();
-
   constructor() {
     this.width = this.sprite.width;
     this.height = 4;
   }
+  getSound(sound: string) {
+    console.log("hi");
+    const soundFX = new Audio(sound);
+    return soundFX;
+  }
+
   getImage() {
     const img = new Image();
     img.src = image;

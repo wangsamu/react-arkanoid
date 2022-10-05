@@ -21,7 +21,7 @@ function SignUpForm() {
     setFormFields({ ...formFields, [name]: value });
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
     //confirm that password matches
     if (password !== confirmPassword) {
@@ -31,16 +31,14 @@ function SignUpForm() {
 
     try {
       //check if user is authenticated with email and password
-      const { user: any } = await createAuthUserWithEmailAndPassword(
-        email,
-        password
-      );
+      const { user } =
+        (await createAuthUserWithEmailAndPassword(email, password)) || {};
       //create a user document with data introduced
       await createUserDocumentFromAuth(user, {
         displayName,
       });
       refreshFormFields();
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === "auth/email-already-in-use") {
         alert("Email already in use!");
       } else {

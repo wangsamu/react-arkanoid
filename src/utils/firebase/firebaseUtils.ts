@@ -5,10 +5,13 @@ import "firebase/compat/firestore";
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import {
+  createUserWithEmailAndPassword,
   getAuth,
   GoogleAuthProvider,
   onAuthStateChanged,
+  signInWithEmailAndPassword,
   signInWithPopup,
+  signOut,
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -31,7 +34,7 @@ export const db = getFirestore();
 //sign-in with Google
 const googleProvider = new GoogleAuthProvider();
 
-const signInwithGooglePopUp = () => {
+const signInWithGooglePopup = () => {
   signInWithPopup(auth, googleProvider);
   console.log(auth);
 };
@@ -39,7 +42,7 @@ const signInwithGooglePopUp = () => {
 //for new sign-ups, creating a copy of the user in firestore
 const createUserDocumentFromAuth = async (
   userAuth: any,
-  additionalInfo: any
+  additionalInfo?: any
 ) => {
   if (!userAuth) return;
 
@@ -61,7 +64,7 @@ const createUserDocumentFromAuth = async (
         createdAt,
         ...additionalInfo,
       });
-      console.log(displayName, email);
+      console.log(`user created suceessfully! ${displayName}`);
     } catch (error: any) {
       console.log("error creating user", error.message);
     }
@@ -75,8 +78,28 @@ const createUserDocumentFromAuth = async (
 const onAuthStateChangedListener = (callback: any) =>
   onAuthStateChanged(auth, callback);
 
+const createAuthUserWithEmailAndPassword = async (
+  email: any,
+  password: any
+) => {
+  if (!email || !password) return;
+
+  return await createUserWithEmailAndPassword(auth, email, password);
+};
+
+const signInAuthWithEmailAndPassword = async (email: any, password: any) => {
+  if (!email || !password) return;
+
+  return await signInWithEmailAndPassword(auth, email, password);
+};
+
+const signOutUser = async () => await signOut(auth);
+
 export {
-  signInwithGooglePopUp,
+  signInWithGooglePopup,
   createUserDocumentFromAuth,
   onAuthStateChangedListener,
+  createAuthUserWithEmailAndPassword,
+  signInAuthWithEmailAndPassword,
+  signOutUser,
 };
